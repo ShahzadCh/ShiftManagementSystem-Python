@@ -3,6 +3,8 @@ class Worker:
     The attributes of worker will be his name (a must required argument),
     a list of his shifts (without any mapping to week number yet),
     and his quota/limit (not yet utilized)"""
+	
+	#TEST COMMENT	
     def __init__(self, worker_name):
         self.name = worker_name
         self.shifts = []

@@ -1,0 +1,211 @@
+[33mcommit 4ba27e7d0b9c962e3f2d39f79f82c7b629a3049f[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Shaz <shahzad_choudhry@live.com>
+Date:   Fri Feb 7 01:29:38 2020 +0200
+
+    Removed unnecessary comments, added the check_quota functionality to be able to compare the allowed working hours versus actual hours worked
+
+[1mdiff --git a/main.py b/main.py[m
+[1mindex c47511a..e589f30 100644[m
+[1m--- a/main.py[m
+[1m+++ b/main.py[m
+[36m@@ -1,23 +1,14 @@[m
+ from worker import Worker[m
+ #from week import Week[m
+ [m
+[31m-shah = Worker("Shahzad")[m
+[31m-ali = Worker("Ali")[m
+[31m-kabir = Worker("Kabir")[m
+[32m+[m[32mworker_list = ["Shaz", "Umar", "Kabir"] #temporarily fixed for testing purpose[m
+ [m
+[31m-#TRY UNCOMMENTING THE SET.SHIFTS() AND SEND_TO_FILE() FOR ONE PERSON ONLY, THEN FOR ALL 3 GIVING THE SAME FILE NAME[m
+[32m+[m[32mfname = input("Enter the week number (e.g. Week1) to create/update shifts for that week: ")[m
+[32m+[m[32mfor each in worker_list:[m
+[32m+[m[32m    each =Worker(each)[m
+ [m
+[31m-shah.set_quota()[m
+[31m-shah.set_shifts()[m
+[31m-#ali.set_shifts()[m
+[31m-kabir.set_shifts()[m
+[32m+[m[32m    each.set_quota()[m
+[32m+[m[32m    each.set_shifts()[m
+[32m+[m[32m    each.send_to_file(fname)[m
+ [m
+[31m-#If I attempt to change an odd shift (like every other shift stays the same, but change Friday's shift) of a worker[m
+[31m-# which has existing shifts in the same week,[m
+[31m-#I can also change a worker's shifts list into a list which stores dictionaries, so that I can change only individual[m
+[31m-#day by using its key, instead of having to enter the whole week again.[m
+[31m-#the problem is list are unordered, but then I can store/export them in a file by calling the keys in a fixed order from Mon-Sun.[m
+ [m
+[31m-shah.send_to_file()[m
+[31m-#ali.send_to_file()[m
+[31m-kabir.send_to_file()[m
+\ No newline at end of file[m
+[1mdiff --git a/worker.py b/worker.py[m
+[1mindex eac38e9..452461a 100644[m
+[1m--- a/worker.py[m
+[1m+++ b/worker.py[m
+[36m@@ -1,32 +1,51 @@[m
+[32m+[m[32mimport re[m
+[32m+[m
+ class Worker:[m
+[31m-    """Worker class is currently the class to create a new worker[m
+[32m+[m[32m    """Worker class (at the moment) creates a new worker.[m
+     The attributes of worker will be his name (a must required argument),[m
+[31m-    a list of his shifts (without any mapping to week number yet),[m
+[32m+[m[32m    a list of his shifts (without any mapping to respective week numbers yet),[m
+     and his quota/limit (not yet utilized)"""[m
+[31m-	[m
+[31m-	#TEST COMMENT	[m
+[32m+[m
+     def __init__(self, worker_name):[m
+         self.name = worker_name[m
+[31m-        self.shifts = [][m
+[32m+[m[32m        self.shifts = list()[m
+         self.quota = None[m
+[32m+[m[32m        self.total_hours = int(0)[m
+ [m
+     def set_quota(self):[m
+[31m-        self.quota = input("Enter the max. number of hours " + self.name + " is allowed to work: ")[m
+[32m+[m[32m        self.quota = int(input("Enter the max. number of hours " + self.name + " is allowed to work in a week: "))[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    def shift_hour_counter(self, ask):[m
+[32m+[m
+[32m+[m[32m        hours = (re.findall('\d+', ask))[m
+[32m+[m
+[32m+[m[32m        shift_hours= (int(hours[1]) - int(hours[0]))[m
+[32m+[m[32m        return int(shift_hours)[m
+ [m
+     def set_shifts(self):[m
+         """This function will just prompet the user to enter shifts of the current worker for the current week and store them in self.shifts"""[m
+         days=('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')[m
+[31m-        ##days are deliberately made as a set, instead of a list. They will be frozen/locked anyway so why not use a set[m
+[32m+[m
+         for each in days:[m
+             print("Enter ", self.name,"'s shift for ", each, " ")[m
+[31m-            ask=input()[m
+[32m+[m[32m            ask = input()[m
+             self.shifts.append(ask)[m
+[32m+[m[32m            if ask == "-":[m
+[32m+[m[32m                pass[m
+[32m+[m[32m            else:[m
+[32m+[m[32m                self.total_hours += self.shift_hour_counter(ask)[m
+ [m
+[32m+[m[32m        #Appending the allowed quota hours, it will show up under the heading "Allowed Hrs."[m
+[32m+[m[32m        self.shifts.append(self.quota)[m
+[32m+[m[32m        # Appending the total_hours below so that it comes against its heading "Actual Hrs."[m
+[32m+[m[32m        self.shifts.append(self.total_hours)[m
+[32m+[m[32m        if self.total_hours > self.quota:[m
+[32m+[m[32m            self.shifts.append("Doing " + str(self.total_hours - self.quota) + " more hours")[m
+ [m
+[31m-    #def get_shifts(self):[m
+[31m-        #return (self.shifts) #I can actually directly use self.shifts when needed.[m
+ [m
+[31m-    def send_to_file(self):[m
+[32m+[m[32m    def send_to_file(self, fname):[m
+[32m+[m
+         """Checks whether a file for current week exists,[m
+         if file doesn't exist: then calls function "create_new_file()[m
+ [m
+[36m@@ -35,69 +54,70 @@[m [mclass Worker:[m
+         If current worker's shifts don't exists, then calls "update_existing_file()" to simply append to existing file[m
+         Otherwise calls "update_file_version()" to create a new file with all data from old file, except current worker"""[m
+ [m
+[31m-        fname = input("Enter the week number to create/update the file and shifts of " + self.name + ": ")[m
+[32m+[m[32m        # A better way would by to import "os" and then check if "os.path.exists(filename)" exists[m
+[32m+[m[32m        # For now, I have instead decided to use the try-except block[m
+ [m
+[31m-        ##I can do that by importing "os" and then checking if "os.path.exists(filename)" exists[m
+[31m-        ##I have decided to use try-except block to check if file exists already or not[m
+[31m-        ##file = open(filename, "a")[m
+         try:[m
+             with open(fname+ ".txt", "r") as infile:[m
+ [m
+[31m-                ##Checking if current worker already has some shifts in current week.[m
+[31m-                ##If YES, then create the new file to be able to delete worker's previously entered shifts by calling update_file_version[m
+[31m-                ##Otherwise append this existing file by calling "update_existing_file()" function.[m
+                 flag = False[m
+                 for line in infile:[m
+                     if line.split()[0] == self.name:[m
+                         flag = True[m
+[31m-                        # current worker's old(unwanted) entry exists already, new version of the file should be created[m
+                         break[m
+                 if flag == True:[m
+                     self.update_file_version(fname)[m
+                 else:[m
+[31m-                    #flag==False meaning current worker has no previous shift in current week, so existing file can be updated[m
+                     self.update_existing_file(fname)[m
+ [m
+[31m-        except:[m
+[31m-            #means the try part could not find current week's file, so no file exists, create one from scratch.[m
+[32m+[m[32m        except IOError:[m
+             self.create_new_file(fname)[m
+ [m
+     def create_new_file(self, fname):[m
+         print("********CREATE NEW FILE********")[m
+[31m-        print("Shifts of ", fname, " do not exist \nCreating new file" )[m
+[31m-        days = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')[m
+[32m+[m[32m        print("Shifts of", fname, "do not exist as a file. \nCreating new file..." )[m
+[32m+[m[32m        headings = ('Names', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Allowed Hrs', 'Actual Hrs', 'Comment')[m
+         with open(fname+ ".txt", "w") as file:[m
+[31m-            for each in days: file.write("\t" + each)[m
+[31m-            file.write("\n")[m
+[31m-            file.write(self.name + "\t")[m
+[31m-            for each in self.shifts:[m
+[31m-                file.write(str(each) + "\t")[m
+[31m-            file.write("\n")[m
+[32m+[m[32m            for each in headings: file.write(each + "\t\t")[m
+[32m+[m[32m            file.write("\n" + self.name + "\t\t")[m
+[32m+[m[32m            for each in self.shifts:[m[41m [m
+[32m+[m[32m                file.write(str(each) + "\t\t")[m
+[32m+[m
+[32m+[m[32m        print("\nA new file has been created with the name",fname, "\n")[m
+ [m
+     def update_existing_file(self, fname):[m
+         print("********UPDATE EXISTING FILE********")[m
+[32m+[m[32m        print("\nShifts of", self.name, "does not exist in the file", fname, "...Updating existing file")[m
+         with open(fname+ ".txt", "a") as file:[m
+[31m-            file.write(self.name + "\t")[m
+[32m+[m[32m            file.write("\n" + self.name + "\t\t")[m
+             for each in self.shifts:[m
+[31m-                file.write(str(each) + "\t")[m
+[31m-            file.write("\n")[m
+[32m+[m[32m                file.write(str(each) + "\t\t")[m
+[32m+[m
+[32m+[m[32m        print("\nThe file", fname, "has been updated and now includes shifts of", self.name, "as well\n")[m
+ [m
+     def update_file_version(self, fname):[m
+         print("********UPDATE FILE VERSION********")[m
+ [m
+[31m-        print("To update ", self.name, "'s shifts in the current week, system needs to create a new file")[m
+[32m+[m[32m        print("\nTo update ", self.name, "'s shifts in the current week, system needs to create a new file")[m
+         print("Shifts of all other workers will be automatically copied to the new file")[m
+[31m-        name = input("Enter the name of new file, recommended name is \"" + fname + "_v1\" ")[m
+[31m-        # TROUBLE: what if same person's shifts were added for the third time meaning that there[m
+[31m-        # was already a filname.1.txt?[m
+[32m+[m[32m        new_name = input("\nEnter the name of new file, recommended name is \"" + fname + "_v1\" :")[m
+ [m
+         with open(fname+ ".txt", "r") as infile:[m
+[31m-            with open(name+ ".txt", "a") as outfile:[m
+[32m+[m[32m            with open(new_name+ ".txt", "a") as outfile:[m
+ [m
+                 for line in infile:[m
+                     if line.split()[0] != self.name:[m
+                         outfile.write(line)[m
+[31m-                outfile.write(self.name + "\t")[m
+[32m+[m[32m                outfile.write(self.name + "\t\t")[m
+                 for each in self.shifts:[m
+[31m-                    outfile.write(str(each) + "\t")[m
+[31m-                outfile.write("\n")[m
+\ No newline at end of file[m
+[32m+[m[32m                    outfile.write(str(each) + "\t\t")[m
+[32m+[m
+[32m+[m[32m        print("\nAn updated version of the original file", fname, "is created with a new name", new_name, "\n")[m
+[32m+[m[32m        fname = new_name #filename updated for future use[m
+[32m+[m
+[32m+[m[41m		[m
+[32m+[m[32m    def convert_file_to_xsls(self):[m
+[32m+[m[32m        #This function should open the current shift's file and use its data to create another excel sheet file.[m
+[32m+[m[32m        #The calculation of many formulas (e.g. counting total hours of each worker) can also be set while creating[m
+[32m+[m[32m        #this file by adding different formulas. Modules like "xslxwriter" could be utilized for this purpose.[m
+[32m+[m[32m        pass[m

@@ -1,0 +1,29 @@
+[33mcommit db2e55dcd62d8e65eb321a0c2220c589e7ed6649[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Shahzad Choudhry <shahzad_choudhry@live.com>
+Date:   Sat Oct 31 00:56:09 2020 +0200
+
+    One of those test commits
+
+[33mcommit 4ba27e7d0b9c962e3f2d39f79f82c7b629a3049f[m
+Author: Shaz <shahzad_choudhry@live.com>
+Date:   Fri Feb 7 01:29:38 2020 +0200
+
+    Removed unnecessary comments, added the check_quota functionality to be able to compare the allowed working hours versus actual hours worked
+
+[33mcommit a514d1d89b9674a6bf556f4ff6fad41ab66096ef[m
+Author: Shaz <shahzad_choudhry@live.com>
+Date:   Sat Nov 30 01:36:52 2019 +0200
+
+    Added a test comment
+
+[33mcommit 6d75a173602e84db80fba57306c91c0e7b63e1cc[m
+Author: Shaz <shahzad_choudhry@live.com>
+Date:   Sat Nov 30 00:59:19 2019 +0200
+
+    Uploading source code
+
+[33mcommit efad920aac7b7d86ed4d299f6a864c5fe6912c64[m
+Author: Shaz <shahzad_choudhry@live.com>
+Date:   Sat Nov 30 00:50:29 2019 +0200
+
+    Initial commit
